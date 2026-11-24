@@ -1,0 +1,54 @@
+{
+  "name": "qa-automation-showcase",
+  "version": "1.0.0",
+  "description": "Playwright + TypeScript test automation showcase: E2E, API and calculation-oracle tests against QuoteLab, a self-contained quote simulator.",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "author": "Lucas Bonno",
+  "homepage": "https://lucasbonno.github.io/qa-automation-showcase/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LucasBonno/qa-automation-showcase.git"
+  },
+  "keywords": ["playwright", "typescript", "test-automation", "e2e", "api-testing", "qa", "page-object", "ci"],
+  "engines": {
+    "node": ">=20.12"
+  },
+  "scripts": {
+    "app": "tsx app/server.ts",
+    "test": "playwright test",
+    "suite": "playwright test --no-deps --project",
+    "smoke": "playwright test --no-deps --project=smoke",
+    "access": "playwright test --no-deps --project=access",
+    "api": "playwright test --no-deps --project=api",
+    "workflow": "playwright test --no-deps --project=workflow",
+    "lease": "playwright test --no-deps --project=lease-notebooks --project=lease-printers --project=lease-mobile --project=lease-automation",
+    "sale": "playwright test --no-deps --project=sale-notebooks --project=sale-printers --project=sale-mobile",
+    "reports": "playwright test --no-deps --project=seed-reset && playwright test --no-deps --project=reports && playwright test --no-deps --project=reports-live",
+    "list": "playwright test --list",
+    "mutation-check": "node scripts/mutation-check.mjs",
+    "site": "node scripts/build-site.mjs",
+    "screenshots": "node scripts/screenshots.mjs",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "check": "npm run typecheck && npm run lint && npm run list",
+    "report": "playwright show-report reports/html",
+    "report:summary": "node -e \"require('child_process').exec(process.platform==='win32'?'start \\\"\\\" reports\\\\summary\\\\index.html':'open reports/summary/index.html')\""
+  },
+  "dependencies": {
+    "express": "5.3.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@playwright/test": "1.65.1",
+    "@types/express": "5.0.6",
+    "@types/node": "26.6.7",
+    "eslint": "10.15.0",
+    "eslint-plugin-playwright": "2.12.2",
+    "globals": "17.14.0",
+    "tsx": "4.23.15",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.74.0"
+  }
+}

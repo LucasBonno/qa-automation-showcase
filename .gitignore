@@ -1,0 +1,23 @@
+# dependencies
+node_modules/
+
+# test output (generated on every run; CI publishes it to GitHub Pages)
+reports/
+site/
+playwright-report/
+test-results/
+blob-report/
+
+# environment and secrets (the sandbox needs none, but never commit them)
+.env
+.env.*
+!.env.example
+
+# editor, OS and logs
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db
+*.log
+npm-debug.log*
