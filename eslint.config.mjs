@@ -49,7 +49,7 @@ export default tseslint.config(
 
   // These scripts also run small functions inside the browser (page.evaluate)
   {
-    files: ['scripts/screenshots.mjs', 'scripts/make-demo-gif.mjs'],
+    files: ['scripts/screenshots.mjs', 'scripts/make-demo-gif.mjs', 'scripts/make-social-preview.mjs'],
     languageOptions: { globals: { ...globals.node, ...globals.browser } },
   },
 );
