@@ -117,10 +117,25 @@ Todos os comandos acima precisam ser digitados **dentro da pasta `qa-automation-
 
 ### Quer ver os testes acontecendo?
 
+**A execução inteira, uma janela de navegador por vez** (cerca de 3 a 4 minutos):
+```bash
+npm run test:watch
+```
+
+**Uma suíte só, devagar o bastante para acompanhar a olho nu** (o melhor jeito de demonstrar):
 ```bash
 npm run suite -- lease-notebooks --headed
 ```
 Um navegador de verdade abre e preenche o formulário de cotação sozinho. Troque `lease-notebooks` por qualquer suíte: `smoke`, `access`, `api`, `workflow`, `lease-mobile`, `sale-printers`, `reports` e assim por diante.
+
+Os testes são rápidos, então acrescente uma pausa entre as ações do navegador com `PW_SLOWMO` (em milissegundos):
+
+| Terminal | Comando |
+|---|---|
+| PowerShell (Windows) | `$env:PW_SLOWMO = 300` e depois `npm run test:watch` |
+| macOS, Linux | `PW_SLOWMO=300 npm run test:watch` |
+
+Com pausa, a execução completa fica bem mais longa, então combine com uma suíte só. Para voltar à velocidade normal no PowerShell: `Remove-Item Env:PW_SLOWMO`. Suítes que só chamam a API (`api`) não abrem janela, porque não têm tela.
 
 Para uma visão guiada, em que você clica num teste e vê cada passo com a sua tela:
 ```bash
@@ -250,6 +265,7 @@ São credenciais de um ambiente de demonstração com dados fictícios, publicad
 | Comando | O que faz |
 |---|---|
 | `npm test` | Todas as suítes, na ordem das dependências |
+| `npm run test:watch` | O mesmo, com o navegador visível, uma janela por vez |
 | `npm run smoke` · `access` · `api` · `workflow` | Uma suíte base (sem dependências) |
 | `npm run lease` · `sale` | As quatro suítes de locação ou as três de venda |
 | `npm run reports` | Restaura o seed, roda as suítes de relatório e depois as "ao vivo" |

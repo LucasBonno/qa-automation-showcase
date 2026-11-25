@@ -117,10 +117,25 @@ Every command above must be typed **inside the `qa-automation-showcase` folder**
 
 ### Want to watch the tests happen?
 
+**The whole run, one browser window at a time** (about 3 to 4 minutes):
+```bash
+npm run test:watch
+```
+
+**One suite, slowly enough to follow by eye** (the best way to demo it):
 ```bash
 npm run suite -- lease-notebooks --headed
 ```
 A real browser opens and fills the quote form on its own. Replace `lease-notebooks` with any suite: `smoke`, `access`, `api`, `workflow`, `lease-mobile`, `sale-printers`, `reports`, and so on.
+
+Tests are fast, so add a pause between the browser actions with `PW_SLOWMO` (in milliseconds):
+
+| Terminal | Command |
+|---|---|
+| PowerShell (Windows) | `$env:PW_SLOWMO = 300` then `npm run test:watch` |
+| macOS, Linux | `PW_SLOWMO=300 npm run test:watch` |
+
+With a pause the full run takes much longer, so it is better to combine it with a single suite. To go back to full speed in PowerShell: `Remove-Item Env:PW_SLOWMO`. Suites that only call the API (`api`) open no window, because they have no screen.
 
 For a guided view where you click a test and see each step with its screen:
 ```bash
@@ -250,6 +265,7 @@ These are sandbox credentials for fictional data, published on purpose (they are
 | Command | What it does |
 |---|---|
 | `npm test` | Every suite, in dependency order |
+| `npm run test:watch` | The same, with a visible browser, one window at a time |
 | `npm run smoke` · `access` · `api` · `workflow` | One core suite (no dependencies) |
 | `npm run lease` · `sale` | The four lease or three sale suites |
 | `npm run reports` | Restore the seed data, then the report suites, then the live ones |
