@@ -1,12 +1,13 @@
 # dependencies
 node_modules/
 
-# test output (generated on every run; CI publishes it to GitHub Pages)
-reports/
-site/
-playwright-report/
-test-results/
-blob-report/
+# test output (generated on every run; CI publishes it to GitHub Pages).
+# Anchored with a leading slash: a bare 'reports/' would also hide suites/reports/.
+/reports/
+/site/
+/playwright-report/
+/test-results/
+/blob-report/
 
 # environment and secrets (the sandbox needs none, but never commit them)
 .env
