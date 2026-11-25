@@ -47,32 +47,102 @@ Se quiser conversar sobre o sistema maior, posso descrever a abordagem numa entr
 | **CI/CD**: checagem de tipos, lint, execução completa e relatórios no GitHub Pages | [`.github/workflows/ci.yml`](.github/workflows/ci.yml) |
 | **Relatório próprio**: resumo de uma página da execução, em português e inglês | [`framework/reporter/`](framework/reporter) |
 
-## Como rodar
+## Experimente
 
-Requisito: Node.js 20.12 ou superior.
+### Opção 1: veja funcionando, sem instalar nada (1 minuto)
 
+| O quê | Onde |
+|---|---|
+| Os testes passaram? | O selo verde de **CI** no topo desta página: a cada envio, todos os 416 passos rodam numa máquina Linux limpa |
+| O relatório dos testes, com capturas de tela e traces | <https://lucasbonno.github.io/qa-automation-showcase/> |
+| O resumo da execução em uma página | [Português](https://lucasbonno.github.io/qa-automation-showcase/summary/index.pt.html) · [English](https://lucasbonno.github.io/qa-automation-showcase/summary/index.en.html) |
+| Como é o aplicativo | As [telas](#telas) abaixo |
+| Os logs de uma execução real | A aba [Actions](https://github.com/LucasBonno/qa-automation-showcase/actions) |
+
+### Opção 2: rodar no seu computador, passo a passo (cerca de 5 minutos)
+
+**Você precisa de dois programas gratuitos.** Se já tem, pule esta parte.
+
+| Programa | Download | Como conferir se funciona |
+|---|---|---|
+| Git | <https://git-scm.com/downloads> | abra um terminal e digite `git --version` |
+| Node.js (versão "LTS", 20.12 ou mais nova) | <https://nodejs.org> | digite `node -v` |
+
+**1. Abra um terminal.** É a janela onde você digita comandos.
+- **Windows:** aperte a tecla `Windows`, digite `PowerShell` e dê Enter.
+- **macOS:** aperte `Cmd + Espaço`, digite `Terminal` e dê Enter.
+- **Linux:** aperte `Ctrl + Alt + T`.
+
+**2. Baixe o projeto.** Copie cada bloco, cole no terminal e dê Enter.
+
+Windows (PowerShell). Use uma pasta fora do OneDrive, que tenta sincronizar milhares de arquivos pequenos:
+```powershell
+mkdir C:\dev
+cd C:\dev
+git clone https://github.com/LucasBonno/qa-automation-showcase.git
+cd qa-automation-showcase
+```
+
+macOS ou Linux:
+```bash
+cd ~
+git clone https://github.com/LucasBonno/qa-automation-showcase.git
+cd qa-automation-showcase
+```
+
+**3. Instale o que o projeto precisa** (só na primeira vez; o navegador tem cerca de 130 MB):
 ```bash
 npm install
 npx playwright install chromium
-
-npm test                  # tudo, na ordem das dependências (cerca de 2,5 minutos)
-npm run smoke             # 13 testes, cerca de 7 segundos: o sistema está de pé?
-npm run report            # abre o relatório HTML do Playwright
-npm run report:summary    # abre o resumo de uma página
 ```
 
-A execução sobe o QuoteLab sozinha (o `webServer` do Playwright). Para explorar o app manualmente: `npm run app` e abra <http://localhost:4173>.
+**4. Rode a verificação rápida** (13 testes, cerca de 8 segundos):
+```bash
+npm run smoke
+```
+Você deve ver `13 passed`.
 
-<details>
-<summary>Windows com OneDrive ou Dropbox</summary>
-
-Clientes de sincronização podem travar a pasta onde o Playwright grava capturas e traces durante os testes. Se aparecerem erros `ENOENT` em arquivos `.trace`, envie os artefatos para fora da pasta sincronizada:
-
-```powershell
-$env:PW_OUTPUT_DIR = "$env:TEMP\pw-showcase-out"
+**5. Rode tudo** (cerca de 2,5 minutos):
+```bash
 npm test
 ```
-</details>
+Você deve ver `416 passed` (os 415 testes mais um passo que restaura os dados de exemplo).
+
+**6. Abra o relatório.** Ele abre no navegador:
+```bash
+npm run report
+```
+
+Todos os comandos acima precisam ser digitados **dentro da pasta `qa-automation-showcase`**. Se aparecer "Missing script" ou "package.json not found", você está na pasta errada: repita `cd qa-automation-showcase`.
+
+### Quer ver os testes acontecendo?
+
+```bash
+npm run suite -- lease-notebooks --headed
+```
+Um navegador de verdade abre e preenche o formulário de cotação sozinho. Troque `lease-notebooks` por qualquer suíte: `smoke`, `access`, `api`, `workflow`, `lease-mobile`, `sale-printers`, `reports` e assim por diante.
+
+Para uma visão guiada, em que você clica num teste e vê cada passo com a sua tela:
+```bash
+npx playwright test --no-deps --project=smoke --ui
+```
+
+### Quer usar o aplicativo manualmente?
+
+```bash
+npm run app
+```
+Abra <http://localhost:4173> e entre com `admin` / `Admin@123` (as outras três contas aparecem na tela de login). Crie uma cotação, mude o desconto e veja o painel de cálculo atualizar. Para parar, use `Ctrl + C`.
+
+### Algo deu errado?
+
+| Sintoma | O que fazer |
+|---|---|
+| `git` ou `node` "não é reconhecido" | O programa não está instalado, ou o terminal foi aberto antes da instalação. Instale e abra um terminal novo |
+| A porta 4173 já está em uso | Use outra porta. PowerShell: `$env:PORT=4180`. macOS e Linux: `export PORT=4180`. Depois rode o comando de novo |
+| Erros `ENOENT` em arquivos `.trace` (Windows com OneDrive ou Dropbox) | O programa de sincronização está travando a pasta. Rode `$env:PW_OUTPUT_DIR="$env:TEMP\pw-out"` antes dos testes, ou clone numa pasta fora do OneDrive |
+| "Executable doesn't exist" / navegador não encontrado | Rode `npx playwright install chromium` de novo |
+| Continua travado | Abra uma [issue](https://github.com/LucasBonno/qa-automation-showcase/issues) com o texto do erro |
 
 ## As suítes de teste
 

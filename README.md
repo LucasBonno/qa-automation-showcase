@@ -47,32 +47,102 @@ If you want to talk about the larger system, I am happy to describe the approach
 | **CI/CD**: type check, lint, full run, reports published to GitHub Pages | [`.github/workflows/ci.yml`](.github/workflows/ci.yml) |
 | **Own reporter**: a one-page run summary in Portuguese and English | [`framework/reporter/`](framework/reporter) |
 
-## Quick start
+## Try it
 
-Requirements: Node.js 20.12 or newer.
+### Option 1: see it, without installing anything (1 minute)
 
+| What | Where |
+|---|---|
+| Did the tests pass? | The green **CI** badge at the top of this page: every push runs all 416 steps on a clean Linux machine |
+| The test report, with screenshots and traces | <https://lucasbonno.github.io/qa-automation-showcase/> |
+| The run summary in one page | [English](https://lucasbonno.github.io/qa-automation-showcase/summary/index.en.html) · [Português](https://lucasbonno.github.io/qa-automation-showcase/summary/index.pt.html) |
+| What the application looks like | The [screens](#screens) below |
+| The logs of a real run | The [Actions](https://github.com/LucasBonno/qa-automation-showcase/actions) tab |
+
+### Option 2: run it on your computer, step by step (about 5 minutes)
+
+**You need two free programs.** If you already have them, skip this.
+
+| Program | Download | Check that it works |
+|---|---|---|
+| Git | <https://git-scm.com/downloads> | open a terminal and type `git --version` |
+| Node.js (the "LTS" version, 20.12 or newer) | <https://nodejs.org> | type `node -v` |
+
+**1. Open a terminal.** It is the window where you type commands.
+- **Windows:** press the `Windows` key, type `PowerShell` and press Enter.
+- **macOS:** press `Cmd + Space`, type `Terminal` and press Enter.
+- **Linux:** press `Ctrl + Alt + T`.
+
+**2. Download the project.** Copy each block, paste it in the terminal and press Enter.
+
+Windows (PowerShell). Use a folder outside OneDrive, which tries to sync thousands of small files:
+```powershell
+mkdir C:\dev
+cd C:\dev
+git clone https://github.com/LucasBonno/qa-automation-showcase.git
+cd qa-automation-showcase
+```
+
+macOS or Linux:
+```bash
+cd ~
+git clone https://github.com/LucasBonno/qa-automation-showcase.git
+cd qa-automation-showcase
+```
+
+**3. Install what the project needs** (only the first time; the browser download is about 130 MB):
 ```bash
 npm install
 npx playwright install chromium
-
-npm test                  # everything, in dependency order (about 2.5 minutes)
-npm run smoke             # 13 tests, about 7 seconds: is the system alive?
-npm run report            # open Playwright's HTML report
-npm run report:summary    # open the one-page summary
 ```
 
-The test run starts QuoteLab by itself (Playwright's `webServer`). To explore the app by hand: `npm run app`, then open <http://localhost:4173>.
+**4. Run the quick check** (13 tests, about 8 seconds):
+```bash
+npm run smoke
+```
+You should see `13 passed`.
 
-<details>
-<summary>Windows with OneDrive or Dropbox</summary>
-
-Sync clients can lock the folder where Playwright writes screenshots and traces while tests run. If you see `ENOENT` errors on `.trace` files, send the artifacts somewhere outside the synced folder:
-
-```powershell
-$env:PW_OUTPUT_DIR = "$env:TEMP\pw-showcase-out"
+**5. Run everything** (about 2.5 minutes):
+```bash
 npm test
 ```
-</details>
+You should see `416 passed` (the 415 tests plus one step that restores the sample data).
+
+**6. Open the report.** It opens in your browser:
+```bash
+npm run report
+```
+
+Every command above must be typed **inside the `qa-automation-showcase` folder**. If you see "Missing script" or "package.json not found", you are in the wrong folder: repeat `cd qa-automation-showcase`.
+
+### Want to watch the tests happen?
+
+```bash
+npm run suite -- lease-notebooks --headed
+```
+A real browser opens and fills the quote form on its own. Replace `lease-notebooks` with any suite: `smoke`, `access`, `api`, `workflow`, `lease-mobile`, `sale-printers`, `reports`, and so on.
+
+For a guided view where you click a test and see each step with its screen:
+```bash
+npx playwright test --no-deps --project=smoke --ui
+```
+
+### Want to use the application by hand?
+
+```bash
+npm run app
+```
+Open <http://localhost:4173> and sign in with `admin` / `Admin@123` (the other three accounts are listed on the login screen). Create a quote, change the discount, and watch the calculation panel update. Stop with `Ctrl + C`.
+
+### Something went wrong?
+
+| Symptom | What to do |
+|---|---|
+| `git` or `node` "is not recognized" | The program is not installed, or the terminal was opened before the installation. Install it and open a new terminal |
+| Port 4173 is already in use | Use another port. PowerShell: `$env:PORT=4180`. macOS and Linux: `export PORT=4180`. Then run the command again |
+| `ENOENT` errors on `.trace` files (Windows with OneDrive or Dropbox) | The sync client is locking the folder. Run `$env:PW_OUTPUT_DIR="$env:TEMP\pw-out"` before the tests, or clone to a folder outside OneDrive |
+| "Executable doesn't exist" / browser not found | Run `npx playwright install chromium` again |
+| Still stuck | Open an [issue](https://github.com/LucasBonno/qa-automation-showcase/issues) with the text of the error |
 
 ## The test suites
 
