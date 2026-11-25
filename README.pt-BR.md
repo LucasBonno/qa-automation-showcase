@@ -269,6 +269,7 @@ São credenciais de um ambiente de demonstração com dados fictícios, publicad
 | `REPORT_LANG` | `pt` | Idioma de `reports/summary/index.html` (`pt` ou `en`; os dois arquivos são sempre gerados) |
 | `PW_OUTPUT_DIR` | `reports/test-results` | Onde ficam capturas de tela e traces |
 | `PW_FRESH_SERVER` | não definida | `1` nunca reaproveita um servidor em execução |
+| `PW_SLOWMO` | `0` | Milissegundos de espera entre as ações do navegador. Use com `--headed` para acompanhar a execução a olho nu, por exemplo `300` |
 
 `QL_TEST_MODE=1` habilita três endpoints exclusivos de teste (restaurar dados, despejar o armazenamento, tokens de curta duração). Ele nunca é necessário para usar o app.
 

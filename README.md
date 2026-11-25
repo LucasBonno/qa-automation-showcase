@@ -269,6 +269,7 @@ These are sandbox credentials for fictional data, published on purpose (they are
 | `REPORT_LANG` | `pt` | Language of `reports/summary/index.html` (`pt` or `en`; both files are always written) |
 | `PW_OUTPUT_DIR` | `reports/test-results` | Where screenshots and traces go |
 | `PW_FRESH_SERVER` | unset | `1` never reuses a running server |
+| `PW_SLOWMO` | `0` | Milliseconds to wait between browser actions. Use with `--headed` to follow a run by eye, for example `300` |
 
 `QL_TEST_MODE=1` enables three test-only endpoints (reset the data, dump the data store, short-lived tokens). It is never needed to use the app.
 

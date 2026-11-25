@@ -40,6 +40,8 @@ export default defineConfig({
   ],
   use: {
     baseURL: ENV.baseURL,
+    // PW_SLOWMO=300 waits 300 ms between browser actions, so a person can follow a test run with --headed.
+    launchOptions: { slowMo: Number(process.env.PW_SLOWMO ?? 0) },
     locale: 'pt-BR',
     timezoneId: 'America/Sao_Paulo',
     trace: 'retain-on-failure',
