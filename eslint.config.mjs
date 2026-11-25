@@ -47,9 +47,9 @@ export default tseslint.config(
     languageOptions: { globals: { ...globals.node } },
   },
 
-  // The screenshot script also runs small functions inside the browser (page.evaluate)
+  // These scripts also run small functions inside the browser (page.evaluate)
   {
-    files: ['scripts/screenshots.mjs'],
+    files: ['scripts/screenshots.mjs', 'scripts/make-demo-gif.mjs'],
     languageOptions: { globals: { ...globals.node, ...globals.browser } },
   },
 );

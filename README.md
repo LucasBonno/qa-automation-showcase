@@ -12,40 +12,30 @@ An end-to-end test automation project built with **Playwright and TypeScript**. 
 >
 > QuoteLab and all its data are fictional. This repository is not related to any employer or client.
 
-![The quote form with the live calculation panel](docs/img/form-lease.png)
+![Animation: Playwright signs in, fills the quote form, the app recalculates, the test compares the installment with an independent calculation, and the whole suite finishes green](docs/img/demo.gif)
 
-## Scope: what this repository is, and what it is not
+**Contents:** [In plain words](#in-plain-words) · [Try it](#try-it) · [What this project shows](#what-this-project-shows) · [Scope](#scope-what-this-repository-is-and-what-it-is-not) · [The test suites](#the-test-suites) · [How a calculation is verified](#how-a-calculation-is-verified) · [Architecture](#architecture) · [Screens](#screens) · [All commands](#all-commands)
 
-QuoteLab is intentionally small. It exists so the **techniques** can be shown in public, running end to end, on a system I fully control. It is not a copy of any system I have worked on, and it does not try to match the size of one.
+## In plain words
 
-These patterns come from my day-to-day work on a large, private B2B web platform for commercial proposals and pricing. Its code and data are not mine to publish, and that work has difficulties this sandbox deliberately does not have:
+QuoteLab is a small web application in which a salesperson builds a quote to **rent or sell equipment** (notebooks, printers, phones, scanners). It calculates installments, discounts, freight and tax, and sends large or heavily discounted quotes to an approver.
 
-| In a large private suite | In this repository |
-|---|---|
-| A shared test environment that is sometimes slow or unstable. Tests wait for the screen, and a timeout is reported as "slowness", not as a product bug | A local server that starts in seconds and is fully controlled |
-| Existing business data that tests must never destroy, so each test first restores the state it needs | Each test creates and cleans up its own data |
-| Several product lines on one framework, each with its own business rules | Four categories on one shared script |
-| A written book of business rules, each with its origin, used to decide whether a finding is a confirmed bug, a suspicion or expected behaviour | A short rule table (below) |
-| Failures cross-checked with the work-item tracker | A one-page run summary |
-| More than a thousand UI tests, with verdicts taken from what the screen shows | 415 tests, through the UI and the API |
+This project is the **automated test suite** that checks that application the way a careful tester would, only in minutes and on every change to the code:
 
-If you want to talk about the larger system, I am happy to describe the approach in an interview, without disclosing anything confidential.
+- It opens a real browser, fills in the forms and **compares every number on screen with an independent calculation**.
+- It talks straight to the API to try invalid and malicious input.
+- It checks who can do what (administrator, seller, approver, viewer).
+- It runs by itself in the cloud on every push, and the result is public.
 
-## What this project shows
+This is how a test reads (simplified):
 
-| Skill | Where to look |
-|---|---|
-| **Calculation oracles**: every amount on screen is checked against an independent formula, in exact `BigInt` arithmetic, never against the app's own code | [`framework/oracles/`](framework/oracles) |
-| **Layered design**: Page Objects for screens, a typed API client, fixtures that clean up after themselves, scenario factories | [`framework/`](framework) |
-| **One flow, many categories**: the same lease and sale scripts run for four equipment categories, each with its own rate, limit and add-on | [`framework/suites/`](framework/suites) |
-| **Boundary-driven data**: the approval threshold is *found* with the oracle (binary search) and tested one unit on each side | [`framework/factory/scenarios.ts`](framework/factory/scenarios.ts) |
-| **Deterministic UI tests**: no sleeps. The app publishes its render state, and tests wait for it | [`BasePage.ready`](framework/pages/base.page.ts) |
-| **Access control**: a full role × action matrix, forged tokens, expired sessions, two browser tabs | [`suites/access/`](suites/access) |
-| **API contract and persistence**: validation messages, state machine, optimistic locking, audit trail checked in the data store | [`suites/api/`](suites/api) |
-| **Execution design**: project dependencies, a smoke gate, read-only suites in parallel, data-changing suites alone and last | [`playwright.config.ts`](playwright.config.ts) |
-| **Do the tests catch bugs?** A mutation check injects 10 deliberate defects and verifies the suites fail | [`scripts/mutation-check.mjs`](scripts/mutation-check.mjs) |
-| **CI/CD**: type check, lint, full run, reports published to GitHub Pages | [`.github/workflows/ci.yml`](.github/workflows/ci.yml) |
-| **Own reporter**: a one-page run summary in Portuguese and English | [`framework/reporter/`](framework/reporter) |
+```ts
+test('summary shows the oracle values: three SKUs, 36 months, 7,35% discount', async ({ openAs, formPage }) => {
+  await openAs('admin', '#/quotes/new');   // sign in as administrator and open the new-quote form
+  await formPage.fillLease(scenario);      // pick customer, items, term, add-on and discount, like a user
+  await expectLeaseSummary(formPage.summary, expectedLease(scenario)); // each row on screen == independent calculation
+});
+```
 
 ## Try it
 
@@ -159,6 +149,39 @@ Open <http://localhost:4173> and sign in with `admin` / `Admin@123` (the other t
 | "Executable doesn't exist" / browser not found | Run `npx playwright install chromium` again |
 | Still stuck | Open an [issue](https://github.com/LucasBonno/qa-automation-showcase/issues) with the text of the error |
 
+## What this project shows
+
+| Skill | Where to look |
+|---|---|
+| **Calculation oracles**: every amount on screen is checked against an independent formula, in exact `BigInt` arithmetic, never against the app's own code | [`framework/oracles/`](framework/oracles) |
+| **Layered design**: Page Objects for screens, a typed API client, fixtures that clean up after themselves, scenario factories | [`framework/`](framework) |
+| **One flow, many categories**: the same lease and sale scripts run for four equipment categories, each with its own rate, limit and add-on | [`framework/suites/`](framework/suites) |
+| **Boundary-driven data**: the approval threshold is *found* with the oracle (binary search) and tested one unit on each side | [`framework/factory/scenarios.ts`](framework/factory/scenarios.ts) |
+| **Deterministic UI tests**: no sleeps. The app publishes its render state, and tests wait for it | [`BasePage.ready`](framework/pages/base.page.ts) |
+| **Access control**: a full role × action matrix, forged tokens, expired sessions, two browser tabs | [`suites/access/`](suites/access) |
+| **API contract and persistence**: validation messages, state machine, optimistic locking, audit trail checked in the data store | [`suites/api/`](suites/api) |
+| **Execution design**: project dependencies, a smoke gate, read-only suites in parallel, data-changing suites alone and last | [`playwright.config.ts`](playwright.config.ts) |
+| **Do the tests catch bugs?** A mutation check injects 10 deliberate defects and verifies the suites fail | [`scripts/mutation-check.mjs`](scripts/mutation-check.mjs) |
+| **CI/CD**: type check, lint, full run, reports published to GitHub Pages | [`.github/workflows/ci.yml`](.github/workflows/ci.yml) |
+| **Own reporter**: a one-page run summary in Portuguese and English | [`framework/reporter/`](framework/reporter) |
+
+## Scope: what this repository is, and what it is not
+
+QuoteLab is intentionally small. It exists so the **techniques** can be shown in public, running end to end, on a system I fully control. It is not a copy of any system I have worked on, and it does not try to match the size of one.
+
+These patterns come from my day-to-day work on a large, private B2B web platform for commercial proposals and pricing. Its code and data are not mine to publish, and that work has difficulties this sandbox deliberately does not have:
+
+| In a large private suite | In this repository |
+|---|---|
+| A shared test environment that is sometimes slow or unstable. Tests wait for the screen, and a timeout is reported as "slowness", not as a product bug | A local server that starts in seconds and is fully controlled |
+| Existing business data that tests must never destroy, so each test first restores the state it needs | Each test creates and cleans up its own data |
+| Several product lines on one framework, each with its own business rules | Four categories on one shared script |
+| A written book of business rules, each with its origin, used to decide whether a finding is a confirmed bug, a suspicion or expected behaviour | A short rule table (below) |
+| Failures cross-checked with the work-item tracker | A one-page run summary |
+| More than a thousand UI tests, with verdicts taken from what the screen shows | 415 tests, through the UI and the API |
+
+If you want to talk about the larger system, I am happy to describe the approach in an interview, without disclosing anything confidential.
+
 ## The test suites
 
 415 tests in 13 suites. Every row is a different verification; categories reuse the same script on purpose, because each has different numbers (rate, limit, add-on).
@@ -254,6 +277,8 @@ More detail in [`docs/architecture.md`](docs/architecture.md).
 These are sandbox credentials for fictional data, published on purpose (they are also shown on the login screen).
 
 ## Screens
+
+![The quote form with the live calculation panel](docs/img/form-lease.png)
 
 | | |
 |---|---|

@@ -80,6 +80,9 @@ td.num, th.num { text-align: right; }
 .add-item { display: grid; grid-template-columns: 1fr 140px auto; gap: .75rem; align-items: end; }
 .add-item .field { margin-bottom: 0; }
 .summary { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.25rem; position: sticky; top: 1rem; }
+/* On the form the panel sits inside a wrapper, so the wrapper is what must stay in view while the form scrolls. */
+.summary-host { position: sticky; top: 1rem; align-self: start; }
+.summary-host .summary { position: static; }
 .summary[data-state='loading'] { opacity: .6; }
 .summary h2 { margin-top: 0; }
 .summary dl, .info { margin: 0; }
@@ -112,6 +115,7 @@ dialog h2 { margin-top: 0; }
 @media (max-width: 860px) {
   .form-layout { grid-template-columns: 1fr; }
   .summary { position: static; }
+  .summary-host { position: static; }
   .topbar { flex-wrap: wrap; gap: .75rem; }
   .add-item { grid-template-columns: 1fr; }
 }

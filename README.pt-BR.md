@@ -12,40 +12,30 @@ Projeto de automação de testes ponta a ponta com **Playwright e TypeScript**. 
 >
 > O QuoteLab e todos os seus dados são fictícios. Este repositório não tem relação com nenhum empregador ou cliente.
 
-![Formulário de cotação com o painel de cálculo ao vivo](docs/img/form-lease.png)
+![Animação: o Playwright entra no sistema, preenche a cotação, o app recalcula, o teste compara a parcela com um cálculo independente e a suíte inteira termina verde](docs/img/demo.gif)
 
-## Escopo: o que este repositório é e o que não é
+**Índice:** [Em palavras simples](#em-palavras-simples) · [Experimente](#experimente) · [O que este projeto demonstra](#o-que-este-projeto-demonstra) · [Escopo](#escopo-o-que-este-repositório-é-e-o-que-não-é) · [As suítes de teste](#as-suítes-de-teste) · [Como um cálculo é verificado](#como-um-cálculo-é-verificado) · [Arquitetura](#arquitetura) · [Telas](#telas) · [Todos os comandos](#todos-os-comandos)
 
-O QuoteLab é pequeno de propósito. Ele existe para que as **técnicas** possam ser mostradas em público, rodando de ponta a ponta, num sistema que eu controlo por inteiro. Não é cópia de nenhum sistema em que já trabalhei e não tenta ter o tamanho de um.
+## Em palavras simples
 
-Esses padrões vêm do meu trabalho diário numa grande plataforma web B2B, privada, de propostas comerciais e precificação. O código e os dados dela não são meus para publicar, e esse trabalho tem dificuldades que esta vitrine deliberadamente não tem:
+O QuoteLab é um pequeno aplicativo web em que um vendedor monta uma cotação para **alugar ou vender equipamentos** (notebooks, impressoras, celulares, coletores). Ele calcula parcelas, descontos, frete e imposto, e envia para um aprovador as cotações grandes ou com desconto alto.
 
-| Numa suíte grande e privada | Neste repositório |
-|---|---|
-| Ambiente de teste compartilhado, às vezes lento ou instável. O teste espera a tela, e um tempo esgotado é classificado como "lentidão", não como bug do produto | Servidor local que sobe em segundos e é totalmente controlado |
-| Dados de negócio existentes que os testes não podem destruir, então cada teste primeiro restaura o estado de que precisa | Cada teste cria e limpa os próprios dados |
-| Várias linhas de produto num mesmo framework, cada uma com regras de negócio próprias | Quatro categorias num roteiro compartilhado |
-| Um livro de regras de negócio escrito, cada regra com sua origem, usado para decidir se um achado é bug confirmado, suspeita ou comportamento esperado | Uma tabela curta de regras (abaixo) |
-| Falhas cruzadas com a ferramenta de gestão de itens de trabalho | Um resumo de uma página da execução |
-| Mais de mil testes de interface, com veredito tirado do que a tela mostra | 415 testes, pela interface e pela API |
+Este projeto é a **suíte de testes automatizados** que confere esse aplicativo como um testador cuidadoso faria, só que em minutos e a cada mudança no código:
 
-Se quiser conversar sobre o sistema maior, posso descrever a abordagem numa entrevista, sem compartilhar nada confidencial.
+- Abre um navegador de verdade, preenche os formulários e **compara cada número da tela com um cálculo independente**.
+- Fala direto com a API para tentar dados inválidos e maliciosos.
+- Confere quem pode fazer o quê (administrador, vendedor, aprovador, consulta).
+- Roda sozinha na nuvem a cada envio de código, e o resultado é público.
 
-## O que este projeto demonstra
+É assim que um teste se lê (simplificado):
 
-| Habilidade | Onde ver |
-|---|---|
-| **Oráculos de cálculo**: cada valor na tela é conferido contra uma fórmula independente, em aritmética exata com `BigInt`, nunca contra o código do próprio app | [`framework/oracles/`](framework/oracles) |
-| **Arquitetura em camadas**: Page Objects, cliente de API tipado, fixtures que limpam o que criam, fábricas de cenários | [`framework/`](framework) |
-| **Um roteiro, várias categorias**: os mesmos roteiros de locação e venda rodam para quatro categorias, cada uma com taxa, limite e adicional próprios | [`framework/suites/`](framework/suites) |
-| **Dados guiados por limites**: a linha de aprovação é *encontrada* com o oráculo (busca binária) e testada uma unidade antes e depois | [`framework/factory/scenarios.ts`](framework/factory/scenarios.ts) |
-| **Testes de UI determinísticos**: sem `sleep`. O app publica o estado da tela e o teste espera por ele | [`BasePage.ready`](framework/pages/base.page.ts) |
-| **Controle de acesso**: matriz completa perfil × ação, tokens forjados, sessão expirada, duas abas do navegador | [`suites/access/`](suites/access) |
-| **Contrato da API e persistência**: mensagens de validação, máquina de estados, controle de versão otimista, trilha de auditoria conferida no armazenamento | [`suites/api/`](suites/api) |
-| **Desenho da execução**: dependências entre projetos, portão de smoke, suítes de leitura em paralelo, suítes que alteram dados sozinhas e por último | [`playwright.config.ts`](playwright.config.ts) |
-| **Os testes pegam defeitos?** Uma verificação de mutação injeta 10 defeitos propositais e confere que as suítes falham | [`scripts/mutation-check.mjs`](scripts/mutation-check.mjs) |
-| **CI/CD**: checagem de tipos, lint, execução completa e relatórios no GitHub Pages | [`.github/workflows/ci.yml`](.github/workflows/ci.yml) |
-| **Relatório próprio**: resumo de uma página da execução, em português e inglês | [`framework/reporter/`](framework/reporter) |
+```ts
+test('painel mostra os valores do oráculo: três SKUs, 36 meses, 7,35% de desconto', async ({ openAs, formPage }) => {
+  await openAs('admin', '#/quotes/new');   // entra como administrador e abre o formulário de nova cotação
+  await formPage.fillLease(scenario);      // escolhe cliente, itens, prazo, adicional e desconto, como um usuário
+  await expectLeaseSummary(formPage.summary, expectedLease(scenario)); // cada linha da tela == cálculo independente
+});
+```
 
 ## Experimente
 
@@ -159,6 +149,39 @@ Abra <http://localhost:4173> e entre com `admin` / `Admin@123` (as outras três 
 | "Executable doesn't exist" / navegador não encontrado | Rode `npx playwright install chromium` de novo |
 | Continua travado | Abra uma [issue](https://github.com/LucasBonno/qa-automation-showcase/issues) com o texto do erro |
 
+## O que este projeto demonstra
+
+| Habilidade | Onde ver |
+|---|---|
+| **Oráculos de cálculo**: cada valor na tela é conferido contra uma fórmula independente, em aritmética exata com `BigInt`, nunca contra o código do próprio app | [`framework/oracles/`](framework/oracles) |
+| **Arquitetura em camadas**: Page Objects, cliente de API tipado, fixtures que limpam o que criam, fábricas de cenários | [`framework/`](framework) |
+| **Um roteiro, várias categorias**: os mesmos roteiros de locação e venda rodam para quatro categorias, cada uma com taxa, limite e adicional próprios | [`framework/suites/`](framework/suites) |
+| **Dados guiados por limites**: a linha de aprovação é *encontrada* com o oráculo (busca binária) e testada uma unidade antes e depois | [`framework/factory/scenarios.ts`](framework/factory/scenarios.ts) |
+| **Testes de UI determinísticos**: sem `sleep`. O app publica o estado da tela e o teste espera por ele | [`BasePage.ready`](framework/pages/base.page.ts) |
+| **Controle de acesso**: matriz completa perfil × ação, tokens forjados, sessão expirada, duas abas do navegador | [`suites/access/`](suites/access) |
+| **Contrato da API e persistência**: mensagens de validação, máquina de estados, controle de versão otimista, trilha de auditoria conferida no armazenamento | [`suites/api/`](suites/api) |
+| **Desenho da execução**: dependências entre projetos, portão de smoke, suítes de leitura em paralelo, suítes que alteram dados sozinhas e por último | [`playwright.config.ts`](playwright.config.ts) |
+| **Os testes pegam defeitos?** Uma verificação de mutação injeta 10 defeitos propositais e confere que as suítes falham | [`scripts/mutation-check.mjs`](scripts/mutation-check.mjs) |
+| **CI/CD**: checagem de tipos, lint, execução completa e relatórios no GitHub Pages | [`.github/workflows/ci.yml`](.github/workflows/ci.yml) |
+| **Relatório próprio**: resumo de uma página da execução, em português e inglês | [`framework/reporter/`](framework/reporter) |
+
+## Escopo: o que este repositório é e o que não é
+
+O QuoteLab é pequeno de propósito. Ele existe para que as **técnicas** possam ser mostradas em público, rodando de ponta a ponta, num sistema que eu controlo por inteiro. Não é cópia de nenhum sistema em que já trabalhei e não tenta ter o tamanho de um.
+
+Esses padrões vêm do meu trabalho diário numa grande plataforma web B2B, privada, de propostas comerciais e precificação. O código e os dados dela não são meus para publicar, e esse trabalho tem dificuldades que esta vitrine deliberadamente não tem:
+
+| Numa suíte grande e privada | Neste repositório |
+|---|---|
+| Ambiente de teste compartilhado, às vezes lento ou instável. O teste espera a tela, e um tempo esgotado é classificado como "lentidão", não como bug do produto | Servidor local que sobe em segundos e é totalmente controlado |
+| Dados de negócio existentes que os testes não podem destruir, então cada teste primeiro restaura o estado de que precisa | Cada teste cria e limpa os próprios dados |
+| Várias linhas de produto num mesmo framework, cada uma com regras de negócio próprias | Quatro categorias num roteiro compartilhado |
+| Um livro de regras de negócio escrito, cada regra com sua origem, usado para decidir se um achado é bug confirmado, suspeita ou comportamento esperado | Uma tabela curta de regras (abaixo) |
+| Falhas cruzadas com a ferramenta de gestão de itens de trabalho | Um resumo de uma página da execução |
+| Mais de mil testes de interface, com veredito tirado do que a tela mostra | 415 testes, pela interface e pela API |
+
+Se quiser conversar sobre o sistema maior, posso descrever a abordagem numa entrevista, sem compartilhar nada confidencial.
+
 ## As suítes de teste
 
 415 testes em 13 suítes. Cada linha é uma verificação diferente. As categorias reaproveitam o mesmo roteiro de propósito, porque cada uma tem números diferentes (taxa, limite, adicional).
@@ -254,6 +277,8 @@ Mais detalhes em [`docs/architecture.md`](docs/architecture.md).
 São credenciais de um ambiente de demonstração com dados fictícios, publicadas de propósito (também aparecem na tela de login).
 
 ## Telas
+
+![Formulário de cotação com o painel de cálculo ao vivo](docs/img/form-lease.png)
 
 | | |
 |---|---|

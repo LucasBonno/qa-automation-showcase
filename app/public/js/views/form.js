@@ -269,7 +269,7 @@ export async function formView({ params, user }) {
   }
 
   // ---------------------------------------------------------------- preview
-  const summaryHost = h('div', { 'data-testid': 'summary-host' });
+  const summaryHost = h('div', { 'data-testid': 'summary-host', class: 'summary-host' });
   let lastCalc = null;
   let seq = 0;
   let timer;
