@@ -14,6 +14,23 @@ Projeto de automação de testes ponta a ponta com **Playwright e TypeScript**. 
 
 ![Formulário de cotação com o painel de cálculo ao vivo](docs/img/form-lease.png)
 
+## Escopo: o que este repositório é e o que não é
+
+O QuoteLab é pequeno de propósito. Ele existe para que as **técnicas** possam ser mostradas em público, rodando de ponta a ponta, num sistema que eu controlo por inteiro. Não é cópia de nenhum sistema em que já trabalhei e não tenta ter o tamanho de um.
+
+Esses padrões vêm do meu trabalho diário numa grande plataforma web B2B, privada, de propostas comerciais e precificação. O código e os dados dela não são meus para publicar, e esse trabalho tem dificuldades que esta vitrine deliberadamente não tem:
+
+| Numa suíte grande e privada | Neste repositório |
+|---|---|
+| Ambiente de teste compartilhado, às vezes lento ou instável. O teste espera a tela, e um tempo esgotado é classificado como "lentidão", não como bug do produto | Servidor local que sobe em segundos e é totalmente controlado |
+| Dados de negócio existentes que os testes não podem destruir, então cada teste primeiro restaura o estado de que precisa | Cada teste cria e limpa os próprios dados |
+| Várias linhas de produto num mesmo framework, cada uma com regras de negócio próprias | Quatro categorias num roteiro compartilhado |
+| Um livro de regras de negócio escrito, cada regra com sua origem, usado para decidir se um achado é bug confirmado, suspeita ou comportamento esperado | Uma tabela curta de regras (abaixo) |
+| Falhas cruzadas com a ferramenta de gestão de itens de trabalho | Um resumo de uma página da execução |
+| Mais de mil testes de interface, com veredito tirado do que a tela mostra | 415 testes, pela interface e pela API |
+
+Se quiser conversar sobre o sistema maior, posso descrever a abordagem numa entrevista, sem compartilhar nada confidencial.
+
 ## O que este projeto demonstra
 
 | Habilidade | Onde ver |

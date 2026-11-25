@@ -14,6 +14,23 @@ An end-to-end test automation project built with **Playwright and TypeScript**. 
 
 ![The quote form with the live calculation panel](docs/img/form-lease.png)
 
+## Scope: what this repository is, and what it is not
+
+QuoteLab is intentionally small. It exists so the **techniques** can be shown in public, running end to end, on a system I fully control. It is not a copy of any system I have worked on, and it does not try to match the size of one.
+
+These patterns come from my day-to-day work on a large, private B2B web platform for commercial proposals and pricing. Its code and data are not mine to publish, and that work has difficulties this sandbox deliberately does not have:
+
+| In a large private suite | In this repository |
+|---|---|
+| A shared test environment that is sometimes slow or unstable. Tests wait for the screen, and a timeout is reported as "slowness", not as a product bug | A local server that starts in seconds and is fully controlled |
+| Existing business data that tests must never destroy, so each test first restores the state it needs | Each test creates and cleans up its own data |
+| Several product lines on one framework, each with its own business rules | Four categories on one shared script |
+| A written book of business rules, each with its origin, used to decide whether a finding is a confirmed bug, a suspicion or expected behaviour | A short rule table (below) |
+| Failures cross-checked with the work-item tracker | A one-page run summary |
+| More than a thousand UI tests, with verdicts taken from what the screen shows | 415 tests, through the UI and the API |
+
+If you want to talk about the larger system, I am happy to describe the approach in an interview, without disclosing anything confidential.
+
 ## What this project shows
 
 | Skill | Where to look |
